@@ -10,12 +10,14 @@ public class Main {
         Variable z = getVariable("z");
         Term test = getApplication(getApplication(getLambda(x, getLambda(y, getLambda(z, getApplication(x, y)))), y), z);
         */
+        Term zero = Lam("f", Lam("y", Var("y")));
         Term one = Lam("f", Lam("y", Apps(Var("f"), Var("y"))));
         Term two = Lam("f", Lam("y", Apps(Var("f"), Apps(Var("f"), Var("y")))));
         Term three = Lam("f", Lam("y", Apps(Var("f"), Apps(Var("f"), Apps(Var("f"), Var("y"))))));
         Term suc = Lam("n", Lam("f", Lam("y", Apps(Var("n"), Var("f"), Apps(Var("f"), Var("y"))))));
         Term plus = Lam("n", Lam("m", Apps(Var("n"), suc, Var("m"))));
-        Term test1 = Apps(plus, three, two);
+        Term mul = Lam("n", Lam("m", Apps(Var("n"), (Apps(plus, Var("m"))), zero)));
+        Term test1 = Apps(mul, two, two);
 //        Term two_ = Apps(plus, one, one);
 //        Term test2 = Apps(plus, two_, one);
 //        System.out.println(two_.reduce());
