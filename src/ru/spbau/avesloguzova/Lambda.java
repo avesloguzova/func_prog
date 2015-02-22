@@ -72,6 +72,25 @@ public class Lambda implements Term{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Lambda)) return false;
+
+        Lambda lambda = (Lambda) o;
+
+        if (!term.equals(lambda.term)) return false;
+        return var.equals(lambda.var);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = var.hashCode();
+        result = 31 * result + term.hashCode();
+        return result;
+    }
+
+    @Override
     public Term forcedRenamed(Variable varFrom, Variable varTo) {
         if(var.equals(varFrom)){
             return new Lambda(varTo, term.forcedRenamed(varFrom,varTo));

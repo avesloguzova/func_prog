@@ -41,8 +41,8 @@ public class Application implements Term{
         }else{
             Term t1 = first.reduce();
             Term t2 = secound.reduce();
-            if (first.equals(t1) && secound.equals(t2))
-                result = this;
+            if (first.equals(t1))
+                result = new Application(t1, t2);
             else
                 result = new Application(t1, t2).reduce();
         }

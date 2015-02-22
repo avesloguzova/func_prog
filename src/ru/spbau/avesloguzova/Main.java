@@ -16,8 +16,10 @@ public class Main {
         Term three = Lam("f", Lam("y", Apps(Var("f"), Apps(Var("f"), Apps(Var("f"), Var("y"))))));
         Term suc = Lam("n", Lam("f", Lam("y", Apps(Var("n"), Var("f"), Apps(Var("f"), Var("y"))))));
         Term plus = Lam("n", Lam("m", Apps(Var("n"), suc, Var("m"))));
+
         Term mul = Lam("n", Lam("m", Apps(Var("n"), (Apps(plus, Var("m"))), zero)));
-        Term test1 = Apps(mul, two, two);
+        Term test1 = Apps(mul, one, two);
+
 //        Term two_ = Apps(plus, one, one);
 //        Term test2 = Apps(plus, two_, one);
 //        System.out.println(two_.reduce());
