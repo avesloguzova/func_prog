@@ -15,12 +15,38 @@ public class Application implements Term{
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Application)) return false;
+
+        Application that = (Application) o;
+
+        if (!first.equals(that.first)) return false;
+        return secound.equals(that.secound);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = first.hashCode();
+        result = 31 * result + secound.hashCode();
+        return result;
+    }
+
+    @Override
     public Term reduce() {
+        Term result;
         if(first instanceof Lambda){
-            return ((Lambda)first).betaConversion(secound).reduce();
+            result = ((Lambda) first).betaConversion(secound).reduce();
         }else{
-            return new Application(first.reduce(),secound.reduce());
+            Term t1 = first.reduce();
+            Term t2 = secound.reduce();
+            if (first.equals(t1) && secound.equals(t2))
+                result = this;
+            else
+                result = new Application(t1, t2).reduce();
         }
+        return result;
     }
 
     @Override
@@ -39,6 +65,13 @@ public class Application implements Term{
         result.addAll(first.getFreeVars());
         result.addAll(secound.getFreeVars());
         return result;
+    }
+
+    @Override
+    public Set<Variable> getNonFreeVars() {
+        Set<Variable> set1 = first.getNonFreeVars();
+        set1.addAll(secound.getNonFreeVars());
+        return set1;
     }
 
     @Override

@@ -17,49 +17,44 @@ public class Lambda implements Term{
 
     @Override
     public Term reduce() {
-        Term t1 = etaConversion();
-        if(this!=t1)
-            return t1.reduce();
-        else
-            return this;
+        return new Lambda(var, term.reduce());
     }
 
     @Override
     public String toString() {
-        return "\\"+var.toString()+'.'+'('+term.toString()+')';
+        return '(' + "\\" + var.toString() + '.' + term.toString() + ')';
     }
 
     @Override
     public Term substitution(Variable variable, Term term) {
-        if(variable.equals(var)){
-            return this;
-        }else{
-            if(!term.getFreeVars().contains(variable)){
-                return new Lambda(var,this.term.substitution(variable,term));
-            }
-            else {
-                return renameNonFree(var, ReduceUtil.findName(var, term.getFreeVars())).substitution(variable,term);
-            }
+        Term result;
+        Set<Variable> fv = term.getFreeVars();
+        Set<Variable> nfv = this.getNonFreeVars();
+        nfv.retainAll(fv);
+        Lambda tmpTerm = this;
+        for (Variable nfVar : nfv) {
+            tmpTerm = (Lambda) renameNonFree(nfVar, ReduceUtil.findName(nfVar, fv));
         }
+
+        result = new Lambda(tmpTerm.var, (tmpTerm).term.substitution(variable, term));
+        return result;
+
     }
     public Term betaConversion(Term term){
         return this.term.substitution(var,term);
-
-
-    }
-    public Term etaConversion(){
-        if(!term.getFreeVars().contains(var)){
-            return term;
-        }else{
-            return this;
-        }
-
     }
 
     @Override
     public Set<Variable> getFreeVars() {
         Set<Variable> result = term.getFreeVars();
         result.remove(var);
+        return result;
+    }
+
+    @Override
+    public Set<Variable> getNonFreeVars() {
+        Set<Variable> result = term.getNonFreeVars();
+        result.add(var);
         return result;
     }
 

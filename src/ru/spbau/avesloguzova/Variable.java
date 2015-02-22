@@ -1,6 +1,7 @@
 package ru.spbau.avesloguzova;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by av on 2/18/15.
@@ -34,6 +35,11 @@ public class Variable implements Term {
         HashSet<Variable> result = new HashSet<Variable>();
         result.add(this);
         return result;
+    }
+
+    @Override
+    public Set<Variable> getNonFreeVars() {
+        return new HashSet<Variable>();
     }
 
     @Override
