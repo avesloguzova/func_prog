@@ -15,12 +15,12 @@ public class Main {
         Term three = Lam("f", Lam("y", Apps(Var("f"), Apps(Var("f"), Apps(Var("f"), Var("y"))))));
         Term suc = Lam("n", Lam("f", Lam("y", Apps(Var("n"), Var("f"), Apps(Var("f"), Var("y"))))));
         Term plus = Lam("n", Lam("m", Apps(Var("n"), suc, Var("m"))));
-        Term test1 = Apps(plus, one, two);
-        Term two_ = Apps(plus, one, one);
-        Term test2 = Apps(plus, two_, one);
-        System.out.println(two_.reduce());
+        Term test1 = Apps(plus, three, two);
+//        Term two_ = Apps(plus, one, one);
+//        Term test2 = Apps(plus, two_, one);
+//        System.out.println(two_.reduce());
         System.out.println(test1.reduce());
-        System.out.println(test2.reduce());
+//        System.out.println(test2.reduce());
 
 
 //	    Term I = getLambda(x, x);

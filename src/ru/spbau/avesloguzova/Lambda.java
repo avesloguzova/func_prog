@@ -28,6 +28,9 @@ public class Lambda implements Term{
     @Override
     public Term substitution(Variable variable, Term term) {
         Term result;
+        if (variable.equals(var)) {
+            return this;
+        }
         Set<Variable> fv = term.getFreeVars();
         Set<Variable> nfv = this.getNonFreeVars();
         nfv.retainAll(fv);
