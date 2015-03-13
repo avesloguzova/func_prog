@@ -16,15 +16,15 @@ fib n = fst(fib'(n))
 --     Для целочисленного деления можете использовать функции div и mod.
 --    (0.5 балла)
 numberOfDigits :: Integer -> Integer
-numberOfDigits n  = if (n `div` 10) == 0 
+numberOfDigits n  = if n `div` 10 == 0 
 						then 1
-				    	else (numberOfDigits (n `div` 10)) + 1
+				    	else numberOfDigits (n `div` 10) + 1
 
 -- 2b. Написать функцию, возвращающую сумму цифр числа.
 --    (0.5 балла)
 sumOfDigits :: Integer -> Integer
-sumOfDigits n | (n `div` 10) == 0 = (n `mod` 10)
-			  | otherwise = ((sumOfDigits (n `div` 10)) + (n `mod` 10))
+sumOfDigits n | n `div` 10 == 0 = (n `mod` 10)
+			  | otherwise = sumOfDigits (n `div` 10) + n `mod` 10
 
 
 
@@ -33,7 +33,7 @@ sumOfDigits n | (n `div` 10) == 0 = (n `mod` 10)
 gcd' :: Integer -> Integer -> Integer
 gcd' a b | a < b = gcd b a
 		 | otherwise = gcd a b 
-		 where gcd a b | (b == 0) = a
+		 where gcd a b | b == 0 = a
 		 			   | otherwise = gcd b (a `mod` b)
 
 
@@ -42,7 +42,7 @@ gcd' a b | a < b = gcd b a
 --    (1 балл)
 minp :: (Integer -> Bool) -> Integer
 minp p = minp' p 0 
-			where minp' p n  = if (p n)||(p  (-n)) 
+			where minp' p n  = if p n || p (-n)
 								then n
 								else minp' p (n+1)
 
@@ -52,7 +52,7 @@ minp p = minp' p 0
 -- так как вы не указали какие у нас узлы интегрирований или хотя бы сколько их,
 -- я отрезок не разбивала.
 integral :: (Double -> Double) -> Double -> Double -> Double
-integral f a b = ((f a)+(f b))/2*(b-a)
+integral f a b = (f a + f b) / 2*(b-a)
 
 -- 6. Реализуйте оператор примитивной рекурсии rec, используя функцию (-), укажите тип rec.
 --    (1 балл)
@@ -63,11 +63,11 @@ rec z s n = s n (rec z s (n-1))
 -- 7. Реализуйте факторил при помощи rec.
 --    (1 балл)
 facRec :: Integer -> Integer
-facRec n = rec 1 (*) n
+facRec = rec 1 (*)
 
 -- 8. Реализуйте факториал при помощи fix.
 --    (1 балл)
 
 facFix :: Integer -> Integer
-facFix n = fix (\fac' n -> if n == 0 then 1 else n * fac' (n-1)) n
+facFix = fix (\fac' n -> if n == 0 then 1 else n * fac' (n-1))
   where fix f = f (fix f)
