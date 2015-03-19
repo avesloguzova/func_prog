@@ -7,7 +7,7 @@ import Data.List
 -- (0.5 балла)
 fun :: [Integer] -> [Integer]
 fun = map fun' . zip [0..] 
- where fun' (i, x) = if not (even i) && (even x) then 2 * x
+ where fun' (i, x) = if odd i && even x then 2 * x
                      else x
 
 -- 2. Реализовать следующие функции, используя композицию:
@@ -89,10 +89,10 @@ takeLast n xs = drop (length xs - n) xs
 -- Заметьте, что в функцию f никогда не передаются пустые списки.
 -- (1 балл)
 mapl :: (a -> Bool) -> ([a] -> b) -> [a] -> [b]
-mapl p f xs = mapl' $ span p xs
- where mapl' ([],[]) = []
-       mapl' ([],y:ys) = mapl p f ys
-       mapl' (prefix,ys) = (f prefix) : (mapl p f ys)
+mapl p f xs = case span p xs of
+                ([],[]) -> []
+                ([],y:ys) -> mapl p f ys
+                (prefix,ys) -> f prefix : mapl p f ys
 
 -- 9. Напишите аналоги функций unlines и unwords, используя функцию intercalate.
 --    Заметьте, что функция unlines' работает чуть иначе, чем unlines.
