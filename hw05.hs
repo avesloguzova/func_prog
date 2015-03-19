@@ -1,71 +1,87 @@
 import Test.HUnit
+import Data.List
 -- Нужно поставить библиотеку hunit:
 -- cabal install hunit
 
 -- 1. fun четные числа в нечетных позициях (нумеруя с 0) умножает на 2, остальные не изменяет.
 -- (0.5 балла)
 fun :: [Integer] -> [Integer]
-fun = undefined
+fun = map fun' . zip [0..] 
+ where fun' (i, x) = if not (even i) && (even x) then 2 * x
+                     else x
 
 -- 2. Реализовать следующие функции, используя композицию:
 -- (1 балл)
 
 -- fa работает как функция notElem. Используйте функцию elem.
 fa :: Eq a => a -> [a] -> Bool
-fa = undefined
+fa x = not . elem x
 
 -- fb g x должен возвращать True, если и только если g x четен. Используйте функцию even.
 fb :: (Integer -> Integer) -> Integer -> Bool
-fb = undefined
+fb g = even . g
 
 -- fc xs возвращает True, если в xs есть хотя бы 1 положительное число, иначе False. Используйте функции filter и null.
 fc :: [Integer] -> Bool
-fc = undefined
+fc = not . null . filter (> 0)
 
 -- fd p xs возвращает количество элементов в xs, не удовлетворяющих предикату p. Используйте функции filter и length.
 fd :: (a -> Bool) -> [a] -> Int
-fd = undefined
+fd p = length . filter (\x -> not (p x))
 
 -- fe возвращает сумму первых 10 элементов списка.
 fe :: [Integer] -> Integer
-fe = undefined
+fe = sum . take 10
 
 -- ff каждый элемент умножает на 2, потом прибавляет 3 и возвращает произведение всех элементов. Используйте функцию product.
 ff :: [Integer] -> Integer
-ff = undefined
+ff = product . map (+ 3) . map (* 2)
 
 -- 3. fibs возвращает бесконечный список чисел Фибоначчи.
 -- (0.5 балла)
 fibs :: [Integer]
-fibs = undefined
+fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
 
 -- 4. isPrime проверяет простоту числа.
 -- (1 балл)
 isPrime :: Integer -> Bool
-isPrime = undefined
+isPrime 1 = False
+isPrime n = null [ x | x <- [2..n - 1], n `mod`x  == 0]
 
 -- primes возвращает бесконечный список простых чисел.
 primes :: [Integer]
-primes = undefined
+primes = [x| x<-[2..],isPrime x]
 
 -- 5. shiftL переставляет первый элемент в конец списка. Реализуйте эту функцию так, чтобы она проходила по списку только один раз.
 -- (1 балл)
 shiftL :: [a] -> [a]
-shiftL = undefined
+shiftL [] = []
+shiftL (x:xs) = xs ++ [x]
 
 -- shiftR переставляет последний элемент в начало. Реализуйте эту функцию так, чтобы она проходила по списку только один раз.
 shiftR :: [a] -> [a]
-shiftR = undefined
+shiftR [] = []
+shiftR [x] = [x]
+shiftR (x:xs) = y:x:ys where (y:ys) = shiftR xs
 
 -- 6. swap i j меняет местами i и j элементы.
 -- (1 балл)
 swap :: Int -> Int -> [a] -> [a]
-swap = undefined
+swap i j xs 
+    | i >= length xs = xs
+    | j >= length xs = xs
+    | i > j = swap j i xs
+    | otherwise = before ++ swapped ++ after
+        where (before, rest)  = splitAt i xs
+              (middle, after) = splitAt (j-i+1) rest
+              swapped = [last middle] ++ (init $ tail middle) ++ [head middle]
+              
+
 
 -- 7. takeLast n xs возвращает последние n элементов списка xs.
 -- (1 балл)
 takeLast :: Int -> [a] -> [a]
-takeLast = undefined
+takeLast n xs = drop (length xs - n) xs
 
 -- 8. Назовем элементы, которые удовлетворяют предикату p хорошими, остальные плохими.
 -- Тогда mapl p f xs выбрасывает плохие элементы, а блоки подряд идущих хороших элементов,
@@ -73,16 +89,19 @@ takeLast = undefined
 -- Заметьте, что в функцию f никогда не передаются пустые списки.
 -- (1 балл)
 mapl :: (a -> Bool) -> ([a] -> b) -> [a] -> [b]
-mapl = undefined
+mapl p f xs = mapl' $ span p xs
+ where mapl' ([],[]) = []
+       mapl' ([],y:ys) = mapl p f ys
+       mapl' (prefix,ys) = (f prefix) : (mapl p f ys)
 
 -- 9. Напишите аналоги функций unlines и unwords, используя функцию intercalate.
 --    Заметьте, что функция unlines' работает чуть иначе, чем unlines.
 -- (0.5 балла)
 unlines' :: [String] -> String
-unlines' = undefined
+unlines' = intercalate "\n"
 
 unwords' :: [String] -> String
-unwords' = undefined
+unwords' = intercalate " "
 
 main = fmap (\_ -> ()) $ runTestTT $ test
     $    label "fun"
