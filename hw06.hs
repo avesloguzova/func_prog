@@ -220,18 +220,20 @@ data Map k v = Leaf | Branch k v (Map k v) (Map k v)
 
 lookup :: Ord k => k -> Map k v -> Maybe v
 lookup key Leaf = Nothing
-lookup k (Branch key val left right) = if k == key then Just val
-                                       else if k < key then lookup k left
-                                            else lookup k right
+lookup k (Branch key val left right) = case compare k key of
+                                        LT -> lookup k left
+                                        EQ -> Just val
+                                        GT -> lookup k right
 
 insert :: Ord k => k -> v -> Map k v -> (Map k v, Maybe v)
 insert key val Leaf = (Branch key val Leaf Leaf, Just val)
-insert newkey newval (Branch key val left right) = if newkey==key then ((Branch key val left right), Nothing)
-                                                   else if newkey < key then ((Branch key val (fst(insert newkey newval left)) right), Just newval)
-                                                        else ((Branch key val left (fst(insert newkey newval right))), Just newval)
+insert newkey newval (Branch key val left right) = case compare newkey key of
+    LT -> (Branch key val (fst (insert newkey newval left)) right, Just newval)
+    EQ -> (Branch key val left right, Nothing)
+    GT -> (Branch key val left (fst (insert newkey newval right)), Just newval)
 
 delete :: Ord k => k -> Map k v -> Maybe (Map k v)
-delete = undefined
+delete = undefined -- !!! а нужно бы определить
 
 fromList :: Ord k => [(k, v)] -> Map k v
 fromList ts = fromList' Leaf ts
