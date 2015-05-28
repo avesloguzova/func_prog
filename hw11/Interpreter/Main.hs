@@ -8,19 +8,78 @@ import Expr
 import Eval
 
 getInt :: Eval Value -> Eval Integer
-getInt m = undefined
+getInt m = do
+    val <- m
+    case val of
+        I int -> return int
+        _ -> fail "Not int"
 
 getBool :: Eval Value -> Eval Bool
-getBool m = undefined
+getBool m =  do
+    val <- m
+    case val of
+        B bool -> return bool
+        _ -> fail "Not bool"
 
 if' :: Eval Value -> Eval () -> Maybe (Eval ()) -> Eval ()
-if' c t e = undefined
+if' c t e = do
+    b <- getBool c
+    case b of True -> t
+              otherwise -> maybe (return ()) id e
+
+mapInt :: (Integer -> Value) -> Eval Value -> Eval Value
+mapInt f e = getInt e >>= \i -> return $ f i
+
+mapBool :: (Bool -> Value) -> Eval Value -> Eval Value
+mapBool f e = getBool e >>= \b -> return $ f b
+
+mapInt2 :: (Integer -> Integer -> Value) -> Eval Value -> Eval Value -> Eval Value
+mapInt2 f e1 e2 = do
+    i1 <- getInt e1
+    i2 <- getInt e2
+    return $ f i1 i2
+
+mapBool2 :: (Bool -> Bool -> Value) -> Eval Value -> Eval Value -> Eval Value
+mapBool2 f e1 e2 = do
+    b1 <- getBool e1
+    b2 <- getBool e2
+    return $ f b1 b2
 
 evalExpr :: Expr -> Eval Value
-evalExpr = undefined
+evalExpr e = case e of
+    Const val -> return val
+    Var str -> getVar str
+    UnOp unop e1 -> case unop of
+        Not -> mapBool (B . not) (evalExpr e1)
+        Neg -> mapInt (I . negate) (evalExpr e1)
+    BinOp binop e1 e2 -> do
+        case binop of
+            Plus -> mapInt2 (\x y -> I (x + y)) (evalExpr e1) (evalExpr e2)
+            Mul -> mapInt2 (\x y -> I (x * y)) (evalExpr e1) (evalExpr e2)
+            Minus -> mapInt2 (\x y -> I (x - y)) (evalExpr e1) (evalExpr e2)
+            And -> mapBool2 (\x y -> B (x && y)) (evalExpr e1) (evalExpr e2)
+            Or -> mapBool2 (\x y -> B (x || y)) (evalExpr e1) (evalExpr e2)
+            Less -> mapInt2 (\x y -> B (x < y)) (evalExpr e1) (evalExpr e2)
+            Greater -> mapInt2 (\x y -> B (x > y)) (evalExpr e1) (evalExpr e2)
+            Equals -> mapInt2 (\x y -> B (x == y)) (evalExpr e1) (evalExpr e2)
 
 evalStatement :: Statement -> Eval ()
-evalStatement = undefined
+evalStatement (Compound body) =
+    mapM_ evalStatement body
+evalStatement this@(While cond body) = do
+    val <- getBool $ evalExpr cond
+    if val
+      then evalStatement body >> evalStatement this
+      else return ()
+evalStatement (Assign varName expr) =
+    evalExpr expr >>= update varName
+evalStatement (If cond thenBody elseBody) = do
+    val <- getBool $ evalExpr cond
+    if val
+      then evalStatement thenBody
+      else maybe (return ()) evalStatement elseBody
+
+
 
 ------------------------------------------------------------------------------------------------
 -- tests

@@ -8,21 +8,21 @@ import Test.HUnit
 import Data.Char
 
 boolP :: Parser Char Bool
-boolP = undefined
+boolP = (pure (\_ -> True) <*> string "True") <|> (pure (\_ -> False) <*> string "False" )
 
 maybeP :: Parser Char a -> Parser Char (Maybe a)
-maybeP = undefined
+maybeP p = (pure (\_ -> Nothing) <*> string "Nothing") <|> (pure (\_ _ val -> Just val) <*> string "Just" <*> satisfy isSpace <*> p)
 
 listP :: Parser Char a -> Parser Char [a]
-listP = undefined
+listP p = between (symbol '[') (symbol ']') (sepBy p (symbol ','))
 
 listP' :: Parser Char a -> Parser Char [a]
-listP' = undefined
+listP' p = between (symbol '[') (symbol ']') (sepBy p (pure (\ _ _ _ -> () ) <*> spaces <*> symbol ',' <*> spaces))
 
 data Tree a b = Node (Tree a b) a (Tree a b) | Leaf b deriving (Show, Eq)
 
 treeP :: Parser Char a -> Parser Char b -> Parser Char (Tree a b)
-treeP = undefined
+treeP p1 p2 = (angles (pure (\ c1 v c2 -> Node c1 v c2 ) <*>  (treeP p1 p2) <*> (braces p1) <*> (treeP p1 p2))) <|> pure (\l -> Leaf l) <*> p2
 
 main = fmap (const ()) $ runTestTT $ test
     $    label "pure"
@@ -166,5 +166,5 @@ main = fmap (const ()) $ runTestTT $ test
   where
     label :: String -> [Test] -> [Test]
     label l = map (\(i,t) -> TestLabel (l ++ " [" ++ show i ++ "]") t) . zip [1..]
-    
+
     (===) = id
