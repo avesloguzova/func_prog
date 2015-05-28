@@ -9,25 +9,25 @@ import Data.Char
 
 -- (0.5 балла)
 boolP :: Parser Char Bool
-boolP = undefined
+boolP = (pure (\_ -> True) <*> string "True") <|> (pure (\_ -> False) <*> string "False" )  
 
 -- (0.5 балла)
 maybeP :: Parser Char a -> Parser Char (Maybe a)
-maybeP = undefined
+maybeP p = (pure (\_ -> Nothing) <*> string "Nothing") <|> (pure (\_ _ val -> Just val) <*> string "Just" <*> satisfy isSpace <*> p)
 
 -- (0.5 балла)
 listP :: Parser Char a -> Parser Char [a]
-listP = undefined
+listP p = between (symbol '[') (symbol ']') (sepBy p (symbol ','))
 
 -- (0.5 балла)
 listP' :: Parser Char a -> Parser Char [a]
-listP' = undefined
+listP' p = between (symbol '[') (symbol ']') (sepBy p (pure (\ _ _ _ -> () ) <*> spaces <*> symbol ',' <*> spaces))
 
 data Tree a b = Node (Tree a b) a (Tree a b) | Leaf b deriving (Show, Eq)
 
 -- (0.5 балла)
 treeP :: Parser Char a -> Parser Char b -> Parser Char (Tree a b)
-treeP = undefined
+treeP p1 p2 = (angles (pure (\ c1 v c2 -> Node c1 v c2 ) <*>  (treeP p1 p2) <*> (braces p1) <*> (treeP p1 p2))) <|> pure (\l -> Leaf l) <*> p2
 
 main = fmap (const ()) $ runTestTT $ test
     $    label "pure"

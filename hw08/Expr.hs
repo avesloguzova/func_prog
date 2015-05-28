@@ -91,7 +91,11 @@ isValid c = isOpSymbol c || isAlphaNum c || isSpace c || elem c "(){}"
 -- Синтаксический анализ
 
 pValue :: Parser Lexeme Value
-pValue = undefined
+pValue = pure (\ _ (NumberConst n) -> I (-n)) <*> symbol (BinOpSign Minus)<*> satisfy f <|> pure (\(NumberConst n) -> I n) <*> satisfy f <|> pure (\(BoolConst b) -> B b) <*> satisfy f'   where
+    f (NumberConst _) = True
+    f _ = False
+    f' (BoolConst _) = True
+    f' _ = False
 
 pExpr :: Parser Lexeme Expr
 pExpr = undefined

@@ -5,8 +5,8 @@ import Control.Applicative
 data Tree a = Node a [Tree a]
 
 instance Functor Tree where
-    fmap = undefined
+    fmap f (Node v c) = Node (f v) $ map (fmap f) c
 
 instance Applicative Tree where
-    pure = undefined
+    pure a = t' where t' = Node a repeat t'
     (<*>) = undefined
