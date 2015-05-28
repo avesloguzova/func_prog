@@ -1,5 +1,6 @@
 import Test.HUnit
 import Data.IORef
+import qualified Control.Monad.Trans.State.Lazy as S
 
 -- 1. Функция tagTree должна нумеровать узлы в дереве следующим образом:
 -- В пронумерованном дереве должны встречаться все числа от 0 до (n - 1) ровно по одному разу, где n - число узлов в дереве.
@@ -8,7 +9,16 @@ import Data.IORef
 data Tree a = Node a (Tree a) (Tree a) | Leaf deriving (Eq,Show)
 
 tagTree :: Tree a -> Tree (a, Int)
-tagTree = undefined
+tagTree tree =  S.evalState (tagTreeState tree) 0
+
+tagTreeState :: Tree a -> S.State Int (Tree (a, Int))
+tagTreeState Leaf = return Leaf
+tagTreeState (Node a left right) = do
+    l <- tagTreeState left
+    n <- S.get
+    S.put (n + 1)
+    r <- tagTreeState right
+    return $ Node (a,n) l r
 
 tree1  = Node "a"     (Node "q"     (Node "t"     Leaf Leaf) (Node "r"     Leaf Leaf)) (Node "x"     Leaf Leaf)
 tree1r = Node ("a",3) (Node ("q",1) (Node ("t",0) Leaf Leaf) (Node ("r",2) Leaf Leaf)) (Node ("x",4) Leaf Leaf)
@@ -18,7 +28,12 @@ tree2r = Node ("a",1) (Node ("q",0) Leaf Leaf) (Node ("x",3) (Node ("s",2) Leaf 
 -- 2. Напишите while.
 -- (1 балл)
 while :: Monad m => m Bool -> m a -> m [a]
-while = undefined
+while cond body = while' [] where
+    while' acc = do
+        val <- cond
+        if val 
+          then body >>= (\x -> while' (acc ++ [x]))
+          else return acc
 
 fac :: Int -> IO [Int]
 fac n = do
